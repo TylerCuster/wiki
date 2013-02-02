@@ -139,6 +139,10 @@ a.gray-link:link, a.gray-link:visited {
     text-decoration: none;
 }
 
+.main-title:hover, .main-title:focus, .main-title:active {
+	color: #700;
+}
+
 .entry-subject{
 	font-weight: bold;
 	font-size: 20px;
