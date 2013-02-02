@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/static/styles.css" />
+		<title>wiki</title>
+	</head>
+
+	<body>
+	<div id="header">
+			<div class="controls">
+				{% block controls %}
+				{% endblock %}
+			</div>
+			<div class="controls">
+				{% if user != "login" %}
+					{{user}} (<a class="reg-link" href="/logout">logout</a>)
+				{% else %}
+					<a class="gray-link" href="/login">login</a>
+					
+					<a class="gray-link" href="/signup">signup</a>
+				{% endif %}
+			</div>
+		
+	</div>
+	<div id="wrapper">
+		<div id="content">
+			{% block content %}
+			{% endblock %}
+		</div>
+		
+		<div id="nav">
+			<a class="main-title" href="/">wiki</a>
+			<div id="nav_entries">
+			<table>
+			<ul>
+			recent entries
+			{% for entry in nav_entries %}
+			<li>
+				<a class="reg-link" href="{{entry.subject}}">{{ entry.subject[:10]}}</a>
+			</li>
+			{% endfor %}
+			</ul>
+			</table>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

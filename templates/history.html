@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block controls %}
+	{% if entryexists %}
+		{% if user != "login" %}
+		<a class="gray-link" href="/_edit{{path}}">edit</a>
+		{% endif %}
+		{% if not user == "login" %}
+		<a class="gray-link" href="{{path}}">view</a>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+	
+{% block content %}
+	<h1>/_history{{path}}</h1>
+	<table class="history-table">
+	{% for entry in entries %}
+		<tr class="entry">
+			<td class="entry-created">
+				{{ entry.created.strftime("%c") }}
+			</td>
+			<td class="entry-content">
+				{{ entry.content[:75]|e}}
+			</td>
+			<td>
+				<a class="entry-view" href="{{path}}?v={{loop.index0}}">view</a>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+{% endblock %}

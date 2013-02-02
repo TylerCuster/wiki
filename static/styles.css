@@ -1,0 +1,169 @@
+body {
+	font-family: sans-serif;
+	margin: 0 7%;
+	min-width: 20em;
+	max-width: 70em;
+}
+
+label {
+	display: block;
+	font-size: 20px;
+}
+
+input[type=text], input[type=password] {
+	width: 250px;
+	font-size: 20px;
+	padding: 4px;
+	margin-bottom: 5px;
+	margin-right: 10px;
+}
+
+textarea {
+	width: 700px;
+	height: 400px;
+	font-size: 17px;
+	font-family: monospace;
+}
+
+input[type=submit] {
+	display: block;
+	font-size: 24px;
+	margin-top: 25px;
+}
+
+ul{
+	list-style: none;
+	margin-left: -1.5em;
+}
+
+h1 {
+	margin-bottom: 30px;
+}
+
+#header {
+	clear: right;
+	height: 1em;
+	padding: 1em; 
+	width: 100%;
+}
+/*
+#sidebar{
+	float: left;
+	width: 13em;
+	padding: 0 0.5em;
+	margin-left: -14em;
+	position: relative;
+	left: 15em;
+}
+*/
+.controls {
+	float: right;
+	padding-left: 1em;
+	display: block;
+}
+
+#nav {
+	float: left;
+	width: 8em;
+	border-width: 0.2em;
+	border-style: solid;
+	border-color: black;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	padding: 0.5em;
+	margin-left: -100%;
+	position: relative;
+	right: 11em;
+	padding-top: 1em;
+}
+
+#nav_entries {
+	margin-top: 0.9em;
+	float: left;
+}
+
+#wrapper {
+	margin: 0 0 0 8em;
+	padding: 0 1em;
+	
+}
+
+#content {
+	float: left;
+	width: 100%;
+}
+
+#content-text {
+	padding: 1em;
+}
+
+#content-title {
+	padding: 0.5em;
+	padding-top: 0.15em;
+	font-size: 2em;
+}
+
+#content-signup {
+	margin-left: 10em;
+}
+
+a.gray-link:link, a.gray-link:visited {
+   padding: 1px 10px 0px 10px;
+   color: black;
+   border-radius: 0.5em;
+   border: 0.2em solid #333;
+   font-family: sans-serif;
+   font-size: 20px;
+   text-decoration: none;
+   margin: 5px;
+   margin-bottom: 0px;
+ }
+ 
+ a.gray-link:hover, a.gray-link:focus, a.gray-link:active {
+	border: 0.2em solid #333;
+	color: #700;
+ }
+
+.error {
+	color: red;
+}
+
+.main-title {
+	float: right;
+    display: block;
+    color: #222;
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+	margin-left: 20px;
+    text-decoration: none;
+}
+
+.entry-subject{
+	font-weight: bold;
+	font-size: 20px;
+	display: block;
+	color: #222;
+}
+
+.entry-created {
+	font-size: 12px;
+}
+
+.entry-content {
+	margin: 0;
+	font-size: 17px;
+	padding: 10px;
+	padding-left: 20px;
+}
+
+.entry-view {
+	text-decoration: none;
+	font-size: 2em;
+	margin-left: 20px;
+}
+
+.reg-link {
+	color: black;
+	font-size: 1em;
+}
