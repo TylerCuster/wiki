@@ -29,12 +29,18 @@
 			{% endblock %}
 		</div>
 		
-		<div id="nav">
+		<div class="nav">
 			<a class="main-title" href="/">wiki</a>
-			<div id="nav_entries">
+			<div id="nav-entries">
 			<table>
+			<form method="post">
+			<div id="nav-search">
+			<label>search</label>
+			<input id="nav-search-bar" type="text" name="search" />
+			</div>
+			</method>
 			<ul>
-			recent entries
+			<label>recent entries</label>
 			{% for entry in nav_entries %}
 			<li>
 				<a class="reg-link" href="{{entry.subject}}">{{ entry.subject[:10]}}</a>

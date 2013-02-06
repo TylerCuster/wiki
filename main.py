@@ -58,7 +58,6 @@ class Entry(db.Model):
     content = db.TextProperty()
     user = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add = True)
-    last_modified = db.DateTimeProperty(auto_now_add = True)
 
 class WikiPage(Handler):
     def get(self, path):
@@ -87,12 +86,42 @@ class WikiPage(Handler):
                     
         self.render("entry.html", user=user, content=content, path=path, entries=entries, nav_entries=nav_entries)
 
+    def post(self, path):
+        search = self.request.get('search')
+
+        self.redirect("/search?q=" + search)
+
 class Front(Handler):
     def get(self):
         user = self.get_username()
         nav_entries = self.get_nav_entries()
         
         self.render("front.html", user=user, nav_entries=nav_entries)
+
+    def post(self):
+        search = self.request.get('search')
+
+        self.redirect("/search?q=" + search)
+
+class Search(Handler):
+    def get(self):
+        user = self.get_username()
+        nav_entries = self.get_nav_entries()
+        
+        search = self.request.get('q')
+        entries = db.GqlQuery("SELECT * FROM Entry")
+        entries = list(entries)
+        found = []
+        for entry in entries:
+            if search in entry.content:
+                found.append(entry)
+            if search in entry.subject:
+                found.append(entry)
+        
+        if len(found)>0:
+            self.render("search.html", user=user, nav_entries=nav_entries, path=search, found=found)
+        else:
+            self.render("search.html", user=user, nav_entries=nav_entries, path=search, found=found)
 
 class EditPage(Handler):
     def get(self, path):
@@ -282,6 +311,7 @@ app = webapp2.WSGIApplication([
                                ('/_edit' + PAGE_RE, EditPage),
                                ('/_history' + PAGE_RE, HistoryPage),
                                ('/', Front),
+                               ('/search/?', Search),
                                (PAGE_RE, WikiPage)
                                ],
                               debug=True)
