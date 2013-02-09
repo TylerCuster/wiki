@@ -117,6 +117,12 @@ class Search(Handler):
                 found.append(entry)
             if search in entry.subject:
                 found.append(entry)
+        sorted_found = sorted(found, key=lambda entry: entry.subject)
+        search_results = []
+        for entry in sorted_found:
+            if entry.subject not in search_results:
+                search_results.append(entry.subject)
+        found = search_results
         
         if len(found)>0:
             self.render("search.html", user=user, nav_entries=nav_entries, path=search, found=found)
