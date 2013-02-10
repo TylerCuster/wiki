@@ -44,8 +44,16 @@ class Handler(webapp2.RequestHandler):
     def get_nav_entries(self):
         nav_entries = db.GqlQuery("SELECT * FROM Entry "
                                   "ORDER by created DESC "
-                                  "LIMIT 10")
+                                  "LIMIT 100")
         nav_entries = list(nav_entries)
+        sorted_entries = sorted(nav_entries, key=lambda entry: entry.subject)
+        results = []
+        nav_entries = []
+        for entry in sorted_entries:
+            if entry.subject not in results:
+                results.append(entry.subject)
+                nav_entries.append(entry)
+        nav_entries = sorted(nav_entries, key=lambda entry: entry.created, reverse=True)
         return nav_entries
 
 class User(db.Model):
@@ -127,7 +135,13 @@ class Search(Handler):
         if len(found)>0:
             self.render("search.html", user=user, nav_entries=nav_entries, path=search, found=found)
         else:
+            found = None
             self.render("search.html", user=user, nav_entries=nav_entries, path=search, found=found)
+
+    def post(self):
+        search = self.request.get('search')
+
+        self.redirect("/search?q=" + search)
 
 class EditPage(Handler):
     def get(self, path):
@@ -169,12 +183,19 @@ class HistoryPage(Handler):
                               "WHERE subject = '%s' "
                               "ORDER BY created ASC" % path)
         entries = list(entries)
+
+        entryexists = False
         if len(entries) > 0:
             entryexists = True
             
         nav_entries = self.get_nav_entries()
         
         self.render("history.html", user=user, entryexists=entryexists, path=path, entries=entries, nav_entries=nav_entries)
+
+    def post(self, path):
+        search = self.request.get('search')
+
+        self.redirect("/search?q=" + search)
 
 class LoginSignupHandler(Handler):
     def make_salt(self):
