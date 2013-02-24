@@ -2,11 +2,14 @@ import os
 import webapp2
 import jinja2
 
+import urllib
+
 import re
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
-import json
+import logging
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -41,19 +44,25 @@ class Handler(webapp2.RequestHandler):
                 pass
         return username
 
-    def get_nav_entries(self):
-        nav_entries = db.GqlQuery("SELECT * FROM Entry "
-                                  "ORDER by created DESC "
-                                  "LIMIT 100")
-        nav_entries = list(nav_entries)
-        sorted_entries = sorted(nav_entries, key=lambda entry: entry.subject)
-        results = []
-        nav_entries = []
-        for entry in sorted_entries:
-            if entry.subject not in results:
-                results.append(entry.subject)
-                nav_entries.append(entry)
-        nav_entries = sorted(nav_entries, key=lambda entry: entry.created, reverse=True)
+    def get_nav_entries(self, update = False):
+        key = "top"
+        nav_entries = memcache.get(key)
+        if nav_entries is None or update:
+            logging.error("DB QUERY")
+            nav_entries = db.GqlQuery("SELECT * FROM Entry "
+                                      "ORDER by created DESC "
+                                      "LIMIT 100")
+            nav_entries = list(nav_entries)
+            
+            sorted_entries = sorted(nav_entries, key=lambda entry: entry.subject)
+            results = []
+            nav_entries = []
+            for entry in sorted_entries:
+                if entry.subject not in results:
+                    results.append(entry.subject)
+                    nav_entries.append(entry)
+            nav_entries = sorted(nav_entries, key=lambda entry: entry.created, reverse=True)
+            memcache.set(key, nav_entries)
         return nav_entries
 
 class User(db.Model):
@@ -67,14 +76,29 @@ class Entry(db.Model):
     user = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add = True)
 
+class Front(Handler):
+    def get(self):
+        user = self.get_username()
+        nav_entries = self.get_nav_entries()
+        
+        self.render("front.html", user=user, nav_entries=nav_entries)
+
+    def post(self):
+        search = self.request.get('search')
+
+        self.redirect("/search?q=" + search)
+
 class WikiPage(Handler):
     def get(self, path):
         path = self.request.path
-        user = self.get_username()
+        path = urllib.url2pathname(path)
+        path = string.replace(path, "\\", "/", 1)
         entries = db.GqlQuery("SELECT * FROM Entry "
                               "WHERE subject = '%s' "
                               "ORDER BY created ASC" % path)
         entries = list(entries)
+
+        user = self.get_username()
         
         nav_entries = self.get_nav_entries()
         
@@ -99,14 +123,86 @@ class WikiPage(Handler):
 
         self.redirect("/search?q=" + search)
 
-class Front(Handler):
+class NewPage(Handler):
     def get(self):
         user = self.get_username()
+        if user == "login":
+            self.redirect('/')
+
+        nav_entries = self.get_nav_entries()
+
+        self.render("newpage.html", user=user, nav_entries=nav_entries)
+        
+    def post(self):
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+        if content and subject:
+            e = Entry(subject='/' + subject, content=content)
+            e.put()
+            self.redirect('/%s' % subject)
+
+            self.get_nav_entries(update = True)
+            
+        search = self.request.get("search")
+        if search:
+            self.redirect("/search?q=" + search)     
+
+class EditPage(Handler):
+    def get(self, path):
+        path = self.request.path
+        user = self.get_username()
+        path = path[6:]
+        if user == "login":
+            self.redirect('%s' % path)
+        entries = db.GqlQuery("SELECT * FROM Entry "
+                              "WHERE subject = '%s' "
+                              "ORDER BY created DESC" % path)
+        entries = list(entries)
+        
         nav_entries = self.get_nav_entries()
         
-        self.render("front.html", user=user, nav_entries=nav_entries)
+        try:
+            entry = entries[0]
+            content = entry.content
+        except:
+            entry = None
+            content = ""
+            
+        self.render("editpage.html", user=user, entry=entry, content=content, path=path, nav_entries=nav_entries)
+        
+    def post(self, path):
+        content = self.request.get("content")
+        if content:
+            e = Entry(subject=path, content=content)
+            e.put()
+            self.response.out.write(path)
+            self.redirect('%s' % path)
 
-    def post(self):
+            self.get_nav_entries(update = True)
+            
+        search = self.request.get("search")
+        if search:
+            self.redirect("/search?q=" + search)   
+        
+class HistoryPage(Handler):
+    def get(self, path):
+        path = self.request.path
+        path = path[9:]
+        user = self.get_username()
+        entries = db.GqlQuery("SELECT * FROM Entry "
+                              "WHERE subject = '%s' "
+                              "ORDER BY created ASC" % path)
+        entries = list(entries)
+
+        entryexists = False
+        if len(entries) > 0:
+            entryexists = True
+            
+        nav_entries = self.get_nav_entries()
+        
+        self.render("history.html", user=user, entryexists=entryexists, path=path, entries=entries, nav_entries=nav_entries)
+
+    def post(self, path):
         search = self.request.get('search')
 
         self.redirect("/search?q=" + search)
@@ -143,60 +239,6 @@ class Search(Handler):
 
         self.redirect("/search?q=" + search)
 
-class EditPage(Handler):
-    def get(self, path):
-        path = self.request.path
-        user = self.get_username()
-        path = path[6:]
-        if user == "login":
-            self.redirect('%s' % path)
-        entries = db.GqlQuery("SELECT * FROM Entry "
-                              "WHERE subject = '%s' "
-                              "ORDER BY created DESC" % path)
-        entries = list(entries)
-        
-        nav_entries = self.get_nav_entries()
-        
-        try:
-            entry = entries[0]
-            content = entry.content
-        except:
-            entry = None
-            content = ""
-            
-        self.render("newpost.html", user=user, entry=entry, content=content, path=path, nav_entries=nav_entries)
-        
-    def post(self, path):
-        content = self.request.get("content")
-
-        e = Entry(subject=path, content=content)
-        e.put()
-        self.response.out.write(path)
-        self.redirect('%s' % path)
-        
-class HistoryPage(Handler):
-    def get(self, path):
-        path = self.request.path
-        path = path[9:]
-        user = self.get_username()
-        entries = db.GqlQuery("SELECT * FROM Entry "
-                              "WHERE subject = '%s' "
-                              "ORDER BY created ASC" % path)
-        entries = list(entries)
-
-        entryexists = False
-        if len(entries) > 0:
-            entryexists = True
-            
-        nav_entries = self.get_nav_entries()
-        
-        self.render("history.html", user=user, entryexists=entryexists, path=path, entries=entries, nav_entries=nav_entries)
-
-    def post(self, path):
-        search = self.request.get('search')
-
-        self.redirect("/search?q=" + search)
-
 class LoginSignupHandler(Handler):
     def make_salt(self):
         salt = ''
@@ -217,6 +259,10 @@ class Signup(LoginSignupHandler):
         self.render('signup.html', user="login", nav_entries=nav_entries)
 
     def post(self):
+        search = self.request.get("search")
+        if search:
+            self.redirect("/search?q=" + search)
+        
         username = self.request.get('username')
         password = self.request.get('password')
         verify = self.request.get('verify')
@@ -288,10 +334,14 @@ class Login(LoginSignupHandler):
         self.render_login(username="", error_pass="", error_user="")
 
     def post(self):
-        username = self.request.get('username')
-        password = self.request.get('password')
+        search = self.request.get("search")
+        if search:
+            self.redirect("/search?q=" + search)
 
         nav_entries = self.get_nav_entries()
+           
+        username = self.request.get('username')
+        password = self.request.get('password')
 
         q = User.all()
         q.filter("username =", username)
@@ -335,6 +385,7 @@ app = webapp2.WSGIApplication([
                                ('/signup/?', Signup),
                                ('/login/?', Login),
                                ('/logout/?', Logout),
+                               ('/newpage/?', NewPage),
                                ('/_edit' + PAGE_RE, EditPage),
                                ('/_history' + PAGE_RE, HistoryPage),
                                ('/', Front),

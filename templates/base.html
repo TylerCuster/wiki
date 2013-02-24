@@ -33,13 +33,19 @@
 			<a class="main-title" href="/">wiki</a>
 			<div id="nav-entries">
 			<table>
+			
 			<form method="post">
 			<div id="nav-search">
-			<label>search</label>
+			<label id="search-text">search</label>
 			<input id="nav-search-bar" type="text" name="search" />
 			</div>
 			</method>
+			
 			<ul>
+			<div id="nav-newpage">
+			<label><a class="nav-newpage-link" href="/newpage">new page</a></label>
+			</div>
+			
 			<label>recent entries</label>
 			{% for entry in nav_entries %}
 			<li>

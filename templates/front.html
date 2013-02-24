@@ -6,9 +6,17 @@
 {% block content %}
 	<h1 id="content-title">/</h1>
 	<div id="content-text">
-		this is a toy wiki site constructed as a final project for udacity's cs 253 course web development
-		fundamentals. it's not meant for use. i plan to use it exclusively to enter articles about hats
+		<p>this is a toy wiki site constructed as a final project for udacity's cs 253 course web development
+		fundamentals. it's not meant for real use.</p>
 		
-		<p>to create a new entry subject, type the subject in the url after the domain. if you wanted to create a page about gogurt, you would type: http://frickfrackhello.appspot.com/gogurt</p>
+		<p>current issues:</p>
+		<ul class="front-page-list">
+		<li>
+		can't create pages with spaces in subjects. this is because the "subject" and url path are the same property in the entry class. i'll need to either create a new property for the subject or convert the spaces to %20's in the url.
+		</li>
+		<li>
+		html is not escaped in the page entries. i'm trusting 'users' to not mess with my site. this is sensible because the only 'user' is myself.
+		</li>
+		</ul>
 	</div>
 {% endblock %}
