@@ -11,13 +11,13 @@ from google.appengine.api import memcache
 
 import logging
 
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                               autoescape = False)
-
 import random
 import string
 import hashlib
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+                               autoescape = False)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -29,6 +29,13 @@ class Handler(webapp2.RequestHandler):
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
+
+    def url_to_path(self, cutoff=""):
+        path = self.request.path
+        path = path[len(cutoff):]
+        path = urllib.url2pathname(path)
+        path = string.replace(path, "\\", "/", 1)
+        return path
 
     def get_username(self):
         cookie_str = self.request.cookies.get("user_id")
@@ -90,9 +97,7 @@ class Front(Handler):
 
 class WikiPage(Handler):
     def get(self, path):
-        path = self.request.path
-        path = urllib.url2pathname(path)
-        path = string.replace(path, "\\", "/", 1)
+        path = self.url_to_path()
         entries = db.GqlQuery("SELECT * FROM Entry "
                               "WHERE subject = '%s' "
                               "ORDER BY created ASC" % path)
@@ -145,19 +150,19 @@ class NewPage(Handler):
             
         search = self.request.get("search")
         if search:
-            self.redirect("/search?q=" + search)     
+            self.redirect("/search?q=" + search)
 
 class EditPage(Handler):
     def get(self, path):
-        path = self.request.path
-        user = self.get_username()
-        path = path[6:]
-        if user == "login":
-            self.redirect('%s' % path)
+        path = self.url_to_path("/_edit")
         entries = db.GqlQuery("SELECT * FROM Entry "
                               "WHERE subject = '%s' "
                               "ORDER BY created DESC" % path)
         entries = list(entries)
+
+        user = self.get_username()
+        if user == "login":
+            self.redirect('%s' % path)
         
         nav_entries = self.get_nav_entries()
         
@@ -186,8 +191,7 @@ class EditPage(Handler):
         
 class HistoryPage(Handler):
     def get(self, path):
-        path = self.request.path
-        path = path[9:]
+        path = self.url_to_path("/_history")
         user = self.get_username()
         entries = db.GqlQuery("SELECT * FROM Entry "
                               "WHERE subject = '%s' "
@@ -313,6 +317,8 @@ class Signup(LoginSignupHandler):
             
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     def valid_username(self, username):
+        if username == "login":
+            return False
         return self.USER_RE.match(username)
 
     PASS_RE = re.compile(r"^.{3,20}$")
@@ -379,7 +385,7 @@ class Logout(Handler):
         self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
         self.redirect("/")
 
-PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+PAGE_RE = r'(/(?:[\w\s\w-]+/?)*)'
 
 app = webapp2.WSGIApplication([
                                ('/signup/?', Signup),
