@@ -111,6 +111,11 @@ a.nav-newpage-link:hover {
 	color: #700;
 }
 
+#nav-recent-entries-label {
+	margin-right: 0.2em;
+	margin-bottom: 0.1em;
+}
+
 #nav-entries {
 	margin-top: 0.9em;
 	float: left;

@@ -46,7 +46,9 @@
 			<label><a class="nav-newpage-link" href="/newpage">new page</a></label>
 			</div>
 			
+			<div id="nav-recent-entries-label">
 			<label>recent entries</label>
+			</div>
 			{% for entry in nav_entries %}
 			<li>
 				<a class="reg-link" href="{{entry.subject}}">{{entry.subject[:10]}}</a>
