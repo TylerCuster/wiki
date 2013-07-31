@@ -6,16 +6,24 @@
 {% block content %}
 	<h1 id="content-title">/</h1>
 	<div id="content-text">
-		<p>this is a toy wiki site constructed as a final project for udacity's cs 253 course web development
-		fundamentals. it's not meant for real use.</p>
+		<p>This is a toy wiki site constructed as a final project for Udacity's CS 253 course Web Development
+		Fundamentals. </p>
 		
-		<p>current issues:</p>
+		<p>It's a demonstration of server-side Python deployed by Google App Engine using webapp2 handlers and Jinja2 templates. Data is stored through GAE's Datastore.</p>
+		
+		<p>The code for the project is available at <a href="https://github.com/TylerCuster/wiki">Github</a>.</p>
+		
+		<p>Some things to do: </p>
+		<ul class="front-page-list">
+		<li><a class="reg-link" href="/signup">Signup</a> or <a class="reg-link" href="/login">login</a>.</li>
+		<li>Create a new entry by clicking 'new entry' or typing the URL '/title' with your desired new entry title.</li>
+		<li>Edit an entry by clicking 'edit' on a page or typing the URL '/_edit/title' with your desired title.</li>
+		<li>View the edit history by clicking 'history' on a page or typing the URL '/_history/title' with your desired title.</li>
+		</ul>
+		<p>Current issues:</p>
 		<ul class="front-page-list">
 		<li>
-		html is not escaped in the page entries. i'm trusting 'users' to not mess with my site. this is sensible because the only 'user' is myself.
-		</li>
-		<li>
-		the site currently sets cookies through a string. i want to change this to an object and for it to throw an exception when the user is not logged in and attempts to access a page.
+		HTML is not escaped in the page entries. I'm trusting 'users' not to mess with my site. This is sensible because the only 'user' is myself.
 		</li>
 		</ul>
 	</div>

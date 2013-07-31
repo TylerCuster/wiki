@@ -2,7 +2,7 @@ body {
 	font-family: sans-serif;
 	margin: 0 7%;
 	min-width: 20em;
-	max-width: 70em;
+	max-width: 100em;
 }
 
 label {
@@ -89,10 +89,6 @@ ul.front-page-list {
 	margin-bottom: 1em;
 }
 
-#search-text {
-	margin-left: 0.2em;
-}
-
 #nav-search-bar {
 	width: 5em;
 	padding: 0.2em;
@@ -129,11 +125,14 @@ a.nav-newpage-link:hover {
 
 #content {
 	float: left;
+	float: left;
 	width: 100%;
 }
 
 #content-text {
 	padding: 1em;
+	margin: -0.7em 0 1em 2em;
+	max-width: 70em;
 }
 
 #content-title {

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block controls %}
+{% endblock %}
+	
+{% block content %}
+{% if user != "login" %}
+	<h1>new entry</h1>
+	<form class="main-edit" method="post">
+		<label for="subject">subject</label>
+		<input type="text" name="subject" />
+		<label for="content">content</label>
+		<textarea name="content"></textarea>
+		<div class="form-footer">
+			<button type="submit">save</button>
+		</div>
+	</form>
+{% else %}
+	<h1 id="content-title"></h1>
+	<div id="content-text">Please <a class="reg-link" href="/login">login</a> to create a new entry.</div>
+{% endif %}
+{% endblock %}

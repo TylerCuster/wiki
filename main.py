@@ -131,8 +131,8 @@ class WikiPage(Handler):
 class NewPage(Handler):
     def get(self):
         user = self.get_username()
-        if user == "login":
-            self.redirect('/')
+        #if user == "login":
+         #   self.redirect('/')
 
         nav_entries = self.get_nav_entries()
 
